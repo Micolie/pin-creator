@@ -114,6 +114,10 @@ def logout():
     session.clear()
     return redirect("/")
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
 @app.route("/fetch", methods=["POST"])
 def fetch():
     url = request.json.get("url", "")
