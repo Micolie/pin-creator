@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pin Creator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
+
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 700; color: #333; }
+  .logo .pin-icon { font-size: 1.6rem; }
+  .login-btn {
+    background: #e60023; color: #fff; border: none; padding: 10px 22px;
+    border-radius: 24px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
+    text-decoration: none; transition: background 0.2s;
+  }
+  .login-btn:hover { background: #c0001d; }
+  .logout-btn {
+    background: transparent; color: #888; border: 1px solid #ddd; padding: 8px 18px;
+    border-radius: 24px; cursor: pointer; font-size: 0.9rem; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: #e60023; color: #e60023; }
+
+  main { max-width: 860px; margin: 40px auto; padding: 0 20px; }
+
+  .hero { text-align: center; margin-bottom: 36px; }
+  .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .hero p { color: #666; font-size: 1.05rem; }
+
+  .card {
+    background: #fff; border-radius: 16px; padding: 28px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07); margin-bottom: 24px;
+  }
+  .card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: #444; }
+
+  .url-row { display: flex; gap: 10px; }
+  .url-input {
+    flex: 1; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px;
+    font-size: 1rem; outline: none; transition: border 0.2s;
+  }
+  .url-input:focus { border-color: #e60023; }
+  .fetch-btn {
+    background: #e60023; color: #fff; border: none; padding: 12px 22px;
+    border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .fetch-btn:hover { background: #c0001d; }
+  .fetch-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+  .image-card {
+    position: relative; border-radius: 10px; overflow: hidden; cursor: pointer;
+    border: 3px solid transparent; transition: border 0.2s, transform 0.15s;
+    aspect-ratio: 1; background: #f0f0f0;
+  }
+  .image-card:hover { transform: scale(1.02); }
+  .image-card.selected { border-color: #e60023; }
+  .image-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .image-card .check {
+    position: absolute; top: 8px; right: 8px; background: #e60023; color: #fff;
+    border-radius: 50%; width: 26px; height: 26px; display: none;
+    align-items: center; justify-content: center; font-size: 14px; font-weight: bold;
+  }
+  .image-card.selected .check { display: flex; }
+
+  .select-all-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .ghost-btn {
+    background: transparent; border: 1px solid #ddd; padding: 6px 14px;
+    border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #555;
+    transition: all 0.2s;
+  }
+  .ghost-btn:hover { border-color: #e60023; color: #e60023; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.85rem; font-weight: 600; color: #666; margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0; border-radius: 10px;
+    font-size: 0.95rem; outline: none; font-family: inherit; transition: border 0.2s;
+    background: #fff;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: #e60023; }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .create-btn {
+    width: 100%; background: #e60023; color: #fff; border: none; padding: 14px;
+    border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer;
+    transition: background 0.2s; margin-top: 8px;
+  }
+  .create-btn:hover { background: #c0001d; }
+  .create-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .results { margin-top: 20px; }
+  .result-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+    border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem;
+  }
+  .result-item.success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+  .result-item.pending { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+  .result-item.fail    { background: #fff1f2; border: 1px solid #fca5a5; color: #991b1b; }
+  .result-item img     { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+
+  .spinner {
+    border: 3px solid #f3f3f3; border-top: 3px solid #e60023;
+    border-radius: 50%; width: 20px; height: 20px;
+    animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none; }
+  .status { color: #888; font-size: 0.9rem; margin-top: 10px; min-height: 24px; }
+
+  .not-logged { text-align: center; padding: 48px 20px; }
+  .not-logged .big { font-size: 4rem; margin-bottom: 16px; }
+  .not-logged h2 { font-size: 1.4rem; margin-bottom: 8px; }
+  .not-logged p { color: #888; margin-bottom: 24px; }
+
+  .error-banner {
+    background: #fff1f2; border: 1px solid #fca5a5; color: #991b1b;
+    padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="pin-icon">📌</span> Pin Creator
+  </div>
+  {% if logged_in %}
+    <a href="/logout" class="logout-btn">Log out</a>
+  {% else %}
+    <a href="/login" class="login-btn">Connect Pinterest</a>
+  {% endif %}
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Create Pinterest Pins</h1>
+    <p>Paste any URL, pick your images, and pin them in seconds.</p>
+  </div>
+
+  {% if not logged_in %}
+  <div class="card">
+    <div class="not-logged">
+      <div class="big">📌</div>
+      <h2>Connect your Pinterest account</h2>
+      <p>Log in with Pinterest to start creating pins from any URL.</p>
+      <a href="/login" class="login-btn" style="display:inline-block;padding:12px 32px;font-size:1rem;">Connect Pinterest</a>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- Step 1: URL -->
+  <div class="card">
+    <h2>Step 1 — Paste a URL</h2>
+    <div class="url-row">
+      <input class="url-input" id="urlInput" type="url" placeholder="https://example.com/your-recipe/"/>
+      <button class="fetch-btn" id="fetchBtn" onclick="fetchImages()">Fetch Images</button>
+    </div>
+    <div class="status" id="fetchStatus"></div>
+  </div>
+
+  <!-- Step 2: Pick images -->
+  <div class="card hidden" id="imageCard">
+    <h2>Step 2 — Select Images</h2>
+    <div class="select-all-row">
+      <button class="ghost-btn" onclick="selectAll()">Select All</button>
+      <button class="ghost-btn" onclick="selectNone()">Clear</button>
+    </div>
+    <div class="image-grid" id="imageGrid"></div>
+  </div>
+
+  <!-- Step 3: Details + Board -->
+  <div class="card hidden" id="detailsCard">
+    <h2>Step 3 — Pin Details</h2>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="pinTitle" placeholder="Pin title"/>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="pinDesc" placeholder="Pin description"></textarea>
+    </div>
+    <div class="field">
+      <label>Board</label>
+      <select id="boardSelect"><option value="">Loading boards...</option></select>
+    </div>
+    <button class="create-btn" id="createBtn" onclick="createPins()">📌 Create Pins</button>
+    <div class="results hidden" id="results"></div>
+  </div>
+
+  {% endif %}
+</main>
+
+<script>
+let allImages = [];
+let selectedImages = new Set();
+
+async function fetchImages() {
+  const url = document.getElementById("urlInput").value.trim();
+  if (!url) return;
+  const btn = document.getElementById("fetchBtn");
+  const status = document.getElementById("fetchStatus");
+  btn.disabled = true;
+  btn.textContent = "Fetching...";
+  status.innerHTML = '<span class="spinner"></span> Fetching images...';
+
+  const r = await fetch("/fetch", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({url})
+  });
+  const data = await r.json();
+  btn.disabled = false;
+  btn.textContent = "Fetch Images";
+
+  allImages = data.images || [];
+  if (!allImages.length) {
+    status.textContent = "No images found on that page.";
+    return;
+  }
+
+  status.textContent = `Found ${allImages.length} image(s).`;
+  document.getElementById("pinTitle").value = data.title || "";
+  document.getElementById("pinDesc").value  = data.description || "";
+
+  renderImages();
+  document.getElementById("imageCard").classList.remove("hidden");
+  document.getElementById("detailsCard").classList.remove("hidden");
+  loadBoards();
+}
+
+function renderImages() {
+  const grid = document.getElementById("imageGrid");
+  grid.innerHTML = "";
+  selectedImages.clear();
+  allImages.forEach((src, i) => {
+    const card = document.createElement("div");
+    card.className = "image-card";
+    card.dataset.index = i;
+    card.innerHTML = `<img src="${src}" onerror="this.parentElement.style.display='none'"/>
+                      <div class="check">✓</div>`;
+    card.onclick = () => toggleImage(i, card);
+    grid.appendChild(card);
+  });
+}
+
+function toggleImage(i, card) {
+  if (selectedImages.has(i)) {
+    selectedImages.delete(i);
+    card.classList.remove("selected");
+  } else {
+    selectedImages.add(i);
+    card.classList.add("selected");
+  }
+}
+
+function selectAll() {
+  document.querySelectorAll(".image-card").forEach((c, i) => {
+    selectedImages.add(i);
+    c.classList.add("selected");
+  });
+}
+
+function selectNone() {
+  selectedImages.clear();
+  document.querySelectorAll(".image-card").forEach(c => c.classList.remove("selected"));
+}
+
+async function loadBoards() {
+  const sel = document.getElementById("boardSelect");
+  sel.innerHTML = "<option value=''>Loading...</option>";
+  const r = await fetch("/boards");
+  const data = await r.json();
+  const boards = data.boards || [];
+  if (!boards.length) {
+    sel.innerHTML = "<option value=''>No boards found</option>";
+    return;
+  }
+  sel.innerHTML = "<option value=''>— Select a board —</option>" +
+    boards.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
+}
+
+async function createPins() {
+  if (!selectedImages.size) { alert("Please select at least one image."); return; }
+  const boardId = document.getElementById("boardSelect").value;
+  if (!boardId) { alert("Please select a board."); return; }
+
+  const btn = document.getElementById("createBtn");
+  btn.disabled = true;
+  btn.textContent = "Creating pins...";
+
+  const images = [...selectedImages].map(i => allImages[i]);
+  const r = await fetch("/pin", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      board_id: boardId,
+      images,
+      title: document.getElementById("pinTitle").value,
+      description: document.getElementById("pinDesc").value,
+      link: document.getElementById("urlInput").value
+    })
+  });
+
+  const data = await r.json();
+  btn.disabled = false;
+  btn.textContent = "📌 Create Pins";
+
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.classList.remove("hidden");
+  resultsDiv.innerHTML = data.results.map(res => {
+    const cls = res.success ? "success" : (res.error && res.error.includes("pending") ? "pending" : "fail");
+    const icon = res.success ? "✅ Pin created! ID: " + res.id : (cls === "pending" ? "⏳ " : "❌ ") + res.error;
+    return `<div class="result-item ${cls}">
+      <img src="${res.image}" onerror="this.style.display='none'"/>
+      <span>${icon}</span>
+    </div>`;
+  }).join("");
+}
+</script>
+
+</body>
+</html>
