@@ -1,10 +1,11 @@
-import json
 import os
 import webbrowser
 import requests
-from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify, redirect, session
-from urllib.parse import urlparse, urlencode
+from urllib.parse import urlencode
+
+from crawler import crawl_site, extract_domain
+from template_renderer import render_pin
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "pincreator-secret-key-2026")
@@ -15,66 +16,40 @@ BASE_URL   = "https://api.pinterest.com/v5"
 AUTH_URL   = "https://www.pinterest.com/oauth/"
 TOKEN_URL  = "https://api.pinterest.com/v5/oauth/token"
 
+
 def redirect_uri():
     host = os.environ.get("APP_HOST", "http://localhost:5000")
     return f"{host}/callback"
 
-# ── Token (session-based for web) ─────────────────────────────────────────────
 
 def get_token():
     return session.get("access_token")
 
-# ── Scraper ───────────────────────────────────────────────────────────────────
-
-def fetch_images(url):
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        resp = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(resp.text, "html.parser")
-    except Exception:
-        return [], "", ""
-
-    og_title = soup.find("meta", property="og:title")
-    og_desc  = soup.find("meta", property="og:description")
-    title    = og_title["content"] if og_title else (soup.title.string if soup.title else "")
-    desc     = og_desc["content"]  if og_desc  else ""
-
-    images = []
-    og_img = soup.find("meta", property="og:image")
-    if og_img and og_img.get("content"):
-        images.append(og_img["content"])
-
-    for tag in soup.find_all("img"):
-        src = tag.get("src") or tag.get("data-src")
-        if src:
-            if src.startswith("//"): src = "https:" + src
-            elif src.startswith("/"):
-                p = urlparse(url)
-                src = f"{p.scheme}://{p.netloc}{src}"
-            if src.startswith("http") and src not in images:
-                images.append(src)
-
-    return images[:20], title.strip(), desc.strip()
-
-# ── API helpers ───────────────────────────────────────────────────────────────
+# ── Pinterest API helpers ─────────────────────────────────────────────────────
 
 def get_boards(token):
     r = requests.get(f"{BASE_URL}/boards",
                      headers={"Authorization": f"Bearer {token}"})
     return r.json().get("items", []) if r.status_code == 200 else []
 
-def create_pin(token, board_id, image_url, title, description, link):
+
+def create_pin_base64(token, board_id, image_b64, title, description, link):
     payload = {
         "board_id": board_id,
         "title": title,
         "description": description,
         "link": link,
-        "media_source": {"source_type": "image_url", "url": image_url}
+        "media_source": {
+            "source_type": "image_base64",
+            "content_type": "image/jpeg",
+            "data": image_b64,
+        },
     }
-    return requests.post(f"{BASE_URL}/pins",
-                         headers={"Authorization": f"Bearer {token}",
-                                  "Content-Type": "application/json"},
-                         json=payload)
+    return requests.post(
+        f"{BASE_URL}/pins",
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        json=payload,
+    )
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
@@ -82,47 +57,54 @@ def create_pin(token, board_id, image_url, title, description, link):
 def index():
     return render_template("index.html", logged_in=bool(get_token()))
 
+
 @app.route("/login")
 def login():
     params = {
-        "client_id": APP_ID,
+        "client_id":    APP_ID,
         "redirect_uri": redirect_uri(),
         "response_type": "code",
         "scope": "boards:read,boards:write,pins:write,pins:read",
     }
     return redirect(AUTH_URL + "?" + urlencode(params))
 
+
 @app.route("/callback")
 def callback():
     code = request.args.get("code")
     if not code:
         return redirect("/?error=login_failed")
-
     resp = requests.post(TOKEN_URL, data={
-        "grant_type": "authorization_code",
-        "code": code,
+        "grant_type":   "authorization_code",
+        "code":         code,
         "redirect_uri": redirect_uri(),
     }, auth=(APP_ID, APP_SECRET))
-
     if resp.status_code == 200:
         session["access_token"] = resp.json().get("access_token")
         return redirect("/")
     return redirect("/?error=token_failed")
+
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
+
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
 
-@app.route("/fetch", methods=["POST"])
-def fetch():
-    url = request.json.get("url", "")
-    images, title, desc = fetch_images(url)
-    return jsonify({"images": images, "title": title, "description": desc})
+
+@app.route("/crawl", methods=["POST"])
+def crawl():
+    url = (request.json or {}).get("url", "").strip()
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+    articles = crawl_site(url, max_articles=15)
+    domain   = extract_domain(url)
+    return jsonify({"articles": articles, "domain": domain, "count": len(articles)})
+
 
 @app.route("/boards")
 def boards():
@@ -131,32 +113,66 @@ def boards():
         return jsonify({"error": "Not logged in"}), 401
     return jsonify({"boards": get_boards(token)})
 
+
+@app.route("/preview", methods=["POST"])
+def preview():
+    data = request.json or {}
+    try:
+        b64 = render_pin(
+            data.get("image", ""),
+            data.get("title", "Preview Title"),
+            data.get("domain", "example.com"),
+            data.get("template", "bold"),
+        )
+        return jsonify({"image": b64})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/pin", methods=["POST"])
 def pin():
     token = get_token()
     if not token:
         return jsonify({"error": "Not logged in"}), 401
 
-    data     = request.json
+    data     = request.json or {}
     board_id = data.get("board_id")
-    images   = data.get("images", [])
-    title    = data.get("title", "")
-    desc     = data.get("description", "")
-    link     = data.get("link", "")
+    template = data.get("template", "bold")
+    domain   = data.get("domain", "")
+    articles = data.get("articles", [])
 
     results = []
-    for img_url in images:
-        r = create_pin(token, board_id, img_url, title, desc, link)
-        if r.status_code == 201:
-            results.append({"success": True, "id": r.json().get("id"), "image": img_url})
-        elif r.status_code == 403:
-            results.append({"success": False, "image": img_url,
-                            "error": "Standard access pending — Pinterest approval required to publish live pins."})
-        else:
-            results.append({"success": False, "image": img_url,
-                            "error": r.json().get("message", "Unknown error")})
+    for article in articles:
+        img_url     = article.get("image", "")
+        title       = article.get("title", "")
+        article_url = article.get("url", "")
+        try:
+            b64 = render_pin(img_url, title, domain, template)
+            r   = create_pin_base64(token, board_id, b64, title, title, article_url)
+            if r.status_code == 201:
+                results.append({
+                    "success": True,
+                    "id":      r.json().get("id"),
+                    "title":   title,
+                    "image":   img_url,
+                })
+            elif r.status_code == 403:
+                results.append({
+                    "success": False, "title": title, "image": img_url,
+                    "error": "Standard access pending — Pinterest approval required.",
+                })
+            else:
+                results.append({
+                    "success": False, "title": title, "image": img_url,
+                    "error": r.json().get("message", f"Error {r.status_code}"),
+                })
+        except Exception as e:
+            results.append({
+                "success": False, "title": title, "image": img_url, "error": str(e),
+            })
 
     return jsonify({"results": results})
+
 
 if __name__ == "__main__":
     is_local = not os.environ.get("APP_HOST")

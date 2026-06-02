@@ -3,3 +3,6 @@ config.json
 venv/
 __pycache__/
 *.pyc
+_*.py
+_*.jpg
+_*.png
