@@ -128,21 +128,43 @@ def _fetch_article(url):
     return {"title": page["title"], "image": page["image"], "url": url}
 
 
+def _norm(url):
+    return url.split("?")[0].split("#")[0].rstrip("/")
+
+
 def crawl_site(base_url, max_articles=15):
-    """Discover article links on a homepage and parse each into a pin candidate."""
+    """Parse the given page AND any article links it points to.
+
+    Works whether the URL is a homepage (discovers many articles) or a single
+    article page (yields at least that one). Returns:
+        {"articles": [...], "error": str|None}
+    """
     try:
         resp = requests.get(base_url, headers=HEADERS, timeout=10)
-        soup = BeautifulSoup(resp.text, "html.parser")
-    except Exception:
-        return []
+    except Exception as e:
+        return {"articles": [],
+                "error": f"Could not reach the site ({e.__class__.__name__}). "
+                         f"On PythonAnywhere free accounts, the target site must be on the allowed-hosts list."}
 
+    if resp.status_code != 200:
+        hint = ""
+        if resp.status_code in (401, 403):
+            hint = (" This is likely PythonAnywhere's free-tier proxy blocking an "
+                    "external site that isn't on the allowed-hosts list.")
+        return {"articles": [],
+                "error": f"Site returned HTTP {resp.status_code}.{hint}"}
+
+    soup        = BeautifulSoup(resp.text, "html.parser")
     base_netloc = urlparse(base_url).netloc
 
-    seen, candidates = set(), []
+    # The page itself is always candidate #1 (handles single-article URLs).
+    seen       = {_norm(base_url)}
+    candidates = [base_url]
+
     for a in soup.find_all("a", href=True):
-        full = urljoin(base_url, a["href"].strip()).split("?")[0].split("#")[0]
-        if full not in seen and _is_article_link(full, base_netloc):
-            seen.add(full)
+        full = urljoin(base_url, a["href"].strip())
+        if _norm(full) not in seen and _is_article_link(full, base_netloc):
+            seen.add(_norm(full))
             candidates.append(full)
 
     articles = []
@@ -154,4 +176,11 @@ def crawl_site(base_url, max_articles=15):
             if data:
                 articles.append(data)
 
-    return articles[:max_articles]
+    # Keep the seed page first if it qualified, then the rest.
+    articles.sort(key=lambda a: 0 if _norm(a["url"]) == _norm(base_url) else 1)
+
+    err = None
+    if not articles:
+        err = ("Reached the site, but found no usable articles "
+               "(each needs a title and an image).")
+    return {"articles": articles[:max_articles], "error": err}

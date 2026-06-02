@@ -101,9 +101,11 @@ def crawl():
     url = (request.json or {}).get("url", "").strip()
     if not url:
         return jsonify({"error": "No URL provided"}), 400
-    articles = crawl_site(url, max_articles=15)
+    result   = crawl_site(url, max_articles=15)
+    articles = result["articles"]
     domain   = extract_domain(url)
-    return jsonify({"articles": articles, "domain": domain, "count": len(articles)})
+    return jsonify({"articles": articles, "domain": domain,
+                    "count": len(articles), "error": result["error"]})
 
 
 @app.route("/boards")
