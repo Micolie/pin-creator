@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: pinflow
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PINTEREST_APP_ID
+        value: 1515450
+      - key: PINTEREST_APP_SECRET
+        value: 39543cc7a9a0ef5e4b00095e54aa1bbec0d18356
+      - key: SECRET_KEY
+        value: pinflow-render-secret-2026
+      - key: APP_HOST
+        sync: false
