@@ -88,21 +88,19 @@ def callback():
 @app.route("/nettest")
 def nettest():
     import requests, os
-    url = "https://chocolatebarnyc.com/dirt-cake-ii/"
-    try:
-        results = {}
-        for test_url in [
-            "https://chocolatebarnyc.com/dirt-cake-ii/",
-            "https://example.com",
-            "https://httpbin.org/get",
-        ]:
-            try:
-                r = requests.get(test_url, timeout=8)
-                results[test_url] = f"OK {r.status_code}"
-            except Exception as ex:
-                results[test_url] = f"FAIL {type(ex).__name__}: {str(ex)[:80]}"
-        proxy = os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'
-        return "<br>".join([f"proxy={proxy}"] + [f"{u}: {v}" for u,v in results.items()])
+    results = {}
+    for test_url in [
+        "https://chocolatebarnyc.com/dirt-cake-ii/",
+        "https://example.com",
+        "https://httpbin.org/get",
+    ]:
+        try:
+            r = requests.get(test_url, timeout=8)
+            results[test_url] = f"OK {r.status_code}"
+        except Exception as ex:
+            results[test_url] = f"FAIL {type(ex).__name__}: {str(ex)[:80]}"
+    proxy = os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'
+    return "<br>".join([f"proxy={proxy}"] + [f"{u}: {v}" for u,v in results.items()])
 
 @app.route("/logout")
 def logout():
