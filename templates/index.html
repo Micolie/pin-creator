@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>PinFlow – Auto Pin Creator</title>
+<title>PinFlow â€“ Auto Pin Creator</title>
 <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
 <link rel="apple-touch-icon" href="/static/icon-192.png"/>
 <style>
@@ -215,7 +215,7 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 <body>
 
 <header>
-  <div class="logo">📌 PinFlow</div>
+  <div class="logo">PinFlow</div>
   {% if logged_in %}
     <a href="/logout" class="logout-btn">Log out</a>
   {% else %}
@@ -226,14 +226,14 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 <main>
   <div class="hero">
     <h1>Automate Your Pin Creation</h1>
-    <p>Crawl your site → pick articles → choose a template → preview &amp; publish to Pinterest.</p>
+    <p>Crawl your site â†’ pick articles â†’ choose a template â†’ preview &amp; publish to Pinterest.</p>
     <p style="font-size:0.78rem;color:#aaa;margin-top:6px;">PinFlow is not affiliated with or endorsed by Pinterest, Inc.</p>
   </div>
 
   {% if not logged_in %}
   <div class="card">
     <div class="not-logged">
-      <div class="big">📌</div>
+      <div class="big">ðŸ“Œ</div>
       <h2>Connect your Pinterest account</h2>
       <p>Authorise via Pinterest OAuth to start publishing pins from your website.</p>
       <a href="/login" class="login-btn" style="display:inline-block;padding:12px 32px;font-size:1rem;">
@@ -246,7 +246,7 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 
   <!-- Step 1: Site URL -->
   <div class="card">
-    <h2>Step 1 — Enter Your Website URL</h2>
+    <h2>Step 1 â€” Enter Your Website URL</h2>
     <div class="url-row">
       <input class="url-input" id="siteUrl" type="url"
              placeholder="https://yourblog.com"
@@ -258,7 +258,7 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 
   <!-- Step 2: Article picker -->
   <div class="card hidden" id="articleCard">
-    <h2>Step 2 — Select Articles to Pin</h2>
+    <h2>Step 2 â€” Select Articles to Pin</h2>
     <div class="toolbar">
       <button class="ghost-btn" onclick="selectAllArticles()">Select All</button>
       <button class="ghost-btn" onclick="clearArticles()">Clear</button>
@@ -269,7 +269,7 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 
   <!-- Step 3: Template -->
   <div class="card hidden" id="templateCard">
-    <h2>Step 3 — Choose a Pin Template <span style="font-weight:400;color:#999;font-size:0.9rem;">(set once, applied to all)</span></h2>
+    <h2>Step 3 â€” Choose a Pin Template <span style="font-weight:400;color:#999;font-size:0.9rem;">(set once, applied to all)</span></h2>
     <div class="template-grid">
       <div class="template-card" id="tpl-minimal" onclick="selectTemplate('minimal')">
         <div class="tp-mockup tp-minimal"></div>
@@ -296,7 +296,7 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 
   <!-- Step 4: Live preview & edit -->
   <div class="card hidden" id="previewCard">
-    <h2>Step 4 — Preview &amp; Edit</h2>
+    <h2>Step 4 â€” Preview &amp; Edit</h2>
     <div class="preview-wrap">
       <div class="preview-stage">
         <img class="preview-img" id="previewImg" alt="Pin preview"/>
@@ -304,9 +304,9 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
       </div>
       <div class="preview-controls">
         <div class="switcher">
-          <button class="arrow-btn" id="prevBtn" onclick="stepArticle(-1)">‹</button>
+          <button class="arrow-btn" id="prevBtn" onclick="stepArticle(-1)">â€¹</button>
           <select id="articleSwitcher" onchange="onSwitchArticle()"></select>
-          <button class="arrow-btn" id="nextBtn" onclick="stepArticle(1)">›</button>
+          <button class="arrow-btn" id="nextBtn" onclick="stepArticle(1)">â€º</button>
         </div>
         <div class="field">
           <label>Title text</label>
@@ -315,7 +315,7 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
         </div>
         <div class="field">
           <label>Image URL</label>
-          <input type="url" id="editImage" oninput="onEditImage()" placeholder="https://…/photo.jpg"/>
+          <input type="url" id="editImage" oninput="onEditImage()" placeholder="https://â€¦/photo.jpg"/>
           <div class="hint">Auto-filled from the crawl. Paste a different URL to swap the image.</div>
         </div>
         <div class="field">
@@ -328,13 +328,13 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 
   <!-- Step 5: Board + Publish -->
   <div class="card hidden" id="publishCard">
-    <h2>Step 5 — Choose Board &amp; Publish</h2>
+    <h2>Step 5 â€” Choose Board &amp; Publish</h2>
     <div class="field">
       <label>Board</label>
-      <select id="boardSelect"><option value="">Loading boards…</option></select>
+      <select id="boardSelect"><option value="">Loading boardsâ€¦</option></select>
     </div>
     <div class="summary-bar" id="summaryBar"><span id="summaryText"></span></div>
-    <button class="create-btn" id="createBtn" onclick="createPins()">📌 Create Pins</button>
+    <button class="create-btn" id="createBtn" onclick="createPins()">ðŸ“Œ Create Pins</button>
     <div class="results hidden" id="results"></div>
   </div>
 
@@ -349,7 +349,7 @@ let siteDomain       = "";
 let activeIdx        = -1;      // index into `articles` currently in the preview
 let previewSeq       = 0;       // guards against out-of-order async previews
 
-// ── Step 1: Crawl ──────────────────────────────────────────────────────────
+// â”€â”€ Step 1: Crawl â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function crawlSite() {
   const url = document.getElementById("siteUrl").value.trim();
@@ -357,8 +357,8 @@ async function crawlSite() {
 
   const btn = document.getElementById("crawlBtn");
   const status = document.getElementById("crawlStatus");
-  btn.disabled = true; btn.textContent = "Crawling…";
-  status.innerHTML = '<span class="spinner sm"></span> Scanning your site for articles…';
+  btn.disabled = true; btn.textContent = "Crawlingâ€¦";
+  status.innerHTML = '<span class="spinner sm"></span> Scanning your site for articlesâ€¦';
 
   try {
     const r = await fetch("/crawl", {
@@ -385,7 +385,7 @@ async function crawlSite() {
   }
 }
 
-// ── Step 2: Articles ───────────────────────────────────────────────────────
+// â”€â”€ Step 2: Articles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function renderArticleCards() {
   const grid = document.getElementById("articleGrid");
@@ -399,7 +399,7 @@ function renderArticleCards() {
     card.innerHTML = `
       <img class="thumb" src="${esc(a.image)}" onerror="this.style.minHeight='110px';this.style.background='#ddd'"/>
       <div class="card-title">${esc(a.title)}</div>
-      <div class="check">✓</div>`;
+      <div class="check">âœ“</div>`;
     card.onclick = () => toggleArticle(i, card);
     grid.appendChild(card);
   });
@@ -429,7 +429,7 @@ function afterSelectionChange() {
   updateSummary();
 }
 
-// ── Step 3: Template (set once) ─────────────────────────────────────────────
+// â”€â”€ Step 3: Template (set once) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function selectTemplate(name) {
   currentTemplate = name;
@@ -439,13 +439,13 @@ function selectTemplate(name) {
   renderPreview();   // live: changing the template re-renders the current pin
 }
 
-// ── Step 4: Live preview + basic editing ────────────────────────────────────
+// â”€â”€ Step 4: Live preview + basic editing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function rebuildSwitcher() {
   const sel = document.getElementById("articleSwitcher");
   const ids = [...selectedArticles];
   if (!ids.length) {
-    sel.innerHTML = "<option value=''>— select articles in Step 2 —</option>";
+    sel.innerHTML = "<option value=''>â€” select articles in Step 2 â€”</option>";
     activeIdx = -1;
     clearPreview();
     return;
@@ -530,26 +530,26 @@ async function renderPreview() {
   }
 }
 
-// ── Step 5: Publish ─────────────────────────────────────────────────────────
+// â”€â”€ Step 5: Publish â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function updateSummary() {
   const bar = document.getElementById("summaryBar");
   const txt = document.getElementById("summaryText");
   if (selectedArticles.size > 0) {
     bar.classList.add("show");
-    txt.innerHTML = `<span>${selectedArticles.size}</span> pin(s) · Template: <span>${currentTemplate}</span> · Domain: <span>${esc(siteDomain)}</span>`;
+    txt.innerHTML = `<span>${selectedArticles.size}</span> pin(s) Â· Template: <span>${currentTemplate}</span> Â· Domain: <span>${esc(siteDomain)}</span>`;
   } else { bar.classList.remove("show"); }
 }
 
 async function loadBoards() {
   const sel = document.getElementById("boardSelect");
-  sel.innerHTML = "<option value=''>Loading…</option>";
+  sel.innerHTML = "<option value=''>Loadingâ€¦</option>";
   try {
     const r = await fetch("/boards");
     const data = await r.json();
     const bds = data.boards || [];
     if (!bds.length) { sel.innerHTML = "<option value=''>No boards found</option>"; return; }
-    sel.innerHTML = "<option value=''>— Select a board —</option>" +
+    sel.innerHTML = "<option value=''>â€” Select a board â€”</option>" +
       bds.map(b => `<option value="${esc(b.id)}">${esc(b.name)}</option>`).join("");
   } catch (e) { sel.innerHTML = "<option value=''>Failed to load boards</option>"; }
 }
@@ -560,7 +560,7 @@ async function createPins() {
   if (!boardId) { alert("Please select a board."); return; }
 
   const btn = document.getElementById("createBtn");
-  btn.disabled = true; btn.textContent = "⏳ Rendering & publishing pins…";
+  btn.disabled = true; btn.textContent = "â³ Rendering & publishing pinsâ€¦";
 
   // Each pin carries its own (possibly edited) title + image; one shared template + domain.
   const selected = [...selectedArticles].map(i => articles[i]);
@@ -575,7 +575,7 @@ async function createPins() {
   } catch (e) {
     alert("Something went wrong. Please try again.");
   } finally {
-    btn.disabled = false; btn.textContent = "📌 Create Pins";
+    btn.disabled = false; btn.textContent = "ðŸ“Œ Create Pins";
   }
 }
 
@@ -584,21 +584,22 @@ function showResults(results) {
   el.classList.remove("hidden");
   el.innerHTML = results.map(res => {
     const cls  = res.success ? "success" : (res.error && res.error.includes("pending") ? "pending" : "fail");
-    const icon = res.success ? "✅ Published!" : (cls === "pending" ? "⏳ Pending approval" : "❌ Failed");
+    const icon = res.success ? "âœ… Published!" : (cls === "pending" ? "â³ Pending approval" : "âŒ Failed");
     const msg  = res.success ? "Pin ID: " + res.id : (res.error || "");
     return `<div class="result-item ${cls}">
       <img src="${esc(res.image||'')}" onerror="this.style.display='none'"/>
       <div><div class="result-title">${esc(res.title||'')}</div>
-      <div class="result-msg">${icon} — ${esc(msg)}</div></div></div>`;
+      <div class="result-msg">${icon} â€” ${esc(msg)}</div></div></div>`;
   }).join("");
 }
 
-// ── Utilities ────────────────────────────────────────────────────────────────
+// â”€â”€ Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function show(id) { document.getElementById(id).classList.remove("hidden"); }
-function trunc(s, n) { s = s || ""; return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+function trunc(s, n) { s = s || ""; return s.length > n ? s.slice(0, n - 1) + "â€¦" : s; }
 function esc(s) {
   return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 </script>
 </body>
 </html>
+
