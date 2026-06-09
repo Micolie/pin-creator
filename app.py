@@ -90,7 +90,7 @@ def nettest():
     import requests, os
     url = "https://chocolatebarnyc.com/dirt-cake-ii/"
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=10, proxies={"http": None, "https": None})
         return f"OK status={r.status_code} proxy_env={os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'}"
     except Exception as e:
         return f"FAIL {type(e).__name__}: {e} proxy_env={os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'}"

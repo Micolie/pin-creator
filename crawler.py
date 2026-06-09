@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PinCreator/1.0)"}
+HEADERS  = {"User-Agent": "Mozilla/5.0 (compatible; PinCreator/1.0)"}
+NO_PROXY = {"http": None, "https": None}  # bypass PythonAnywhere proxy for crawling
 
 SKIP_LINK_PATTERNS = [
     "/tag/", "/tags/", "/category/", "/categories/",
@@ -48,7 +49,7 @@ def parse_page(url, want_all_images=False):
     Returns None if the page can't be fetched.
     """
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=8)
+        resp = requests.get(url, headers=HEADERS, timeout=8, proxies=NO_PROXY)
         if resp.status_code != 200:
             return None
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -144,7 +145,7 @@ def crawl_site(base_url, max_articles=15):
         base_url = "https://" + base_url
 
     try:
-        resp = requests.get(base_url, headers=HEADERS, timeout=10)
+        resp = requests.get(base_url, headers=HEADERS, timeout=10, proxies=NO_PROXY)
     except Exception as e:
         name = e.__class__.__name__
         if name == "MissingSchema":
