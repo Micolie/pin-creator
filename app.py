@@ -85,6 +85,16 @@ def callback():
     return redirect("/?error=token_failed")
 
 
+@app.route("/nettest")
+def nettest():
+    import requests, os
+    url = "https://chocolatebarnyc.com/dirt-cake-ii/"
+    try:
+        r = requests.get(url, timeout=10)
+        return f"OK status={r.status_code} proxy_env={os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'}"
+    except Exception as e:
+        return f"FAIL {type(e).__name__}: {e} proxy_env={os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'}"
+
 @app.route("/logout")
 def logout():
     session.clear()
