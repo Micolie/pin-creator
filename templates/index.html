@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Pin Creator</title>
+<title>PinFlow – Auto Pin Creator</title>
 <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
 <link rel="apple-touch-icon" href="/static/icon-192.png"/>
 <style>
@@ -215,18 +215,19 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 <body>
 
 <header>
-  <div class="logo">📌 Pin Creator</div>
+  <div class="logo">📌 PinFlow</div>
   {% if logged_in %}
     <a href="/logout" class="logout-btn">Log out</a>
   {% else %}
-    <a href="/login" class="login-btn">Connect Pinterest</a>
+    <a href="/login" class="login-btn">Connect via Pinterest</a>
   {% endif %}
 </header>
 
 <main>
   <div class="hero">
-    <h1>Automate Your Pinterest Pins</h1>
-    <p>Crawl your site → pick articles → choose a template → preview &amp; publish.</p>
+    <h1>Automate Your Pin Creation</h1>
+    <p>Crawl your site → pick articles → choose a template → preview &amp; publish to Pinterest.</p>
+    <p style="font-size:0.78rem;color:#aaa;margin-top:6px;">PinFlow is not affiliated with or endorsed by Pinterest, Inc.</p>
   </div>
 
   {% if not logged_in %}
@@ -234,9 +235,9 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
     <div class="not-logged">
       <div class="big">📌</div>
       <h2>Connect your Pinterest account</h2>
-      <p>Log in with Pinterest to start pinning from your website.</p>
+      <p>Authorise via Pinterest OAuth to start publishing pins from your website.</p>
       <a href="/login" class="login-btn" style="display:inline-block;padding:12px 32px;font-size:1rem;">
-        Connect Pinterest
+        Connect via Pinterest
       </a>
     </div>
   </div>
