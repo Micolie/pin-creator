@@ -90,10 +90,19 @@ def nettest():
     import requests, os
     url = "https://chocolatebarnyc.com/dirt-cake-ii/"
     try:
-        r = requests.get(url, timeout=10, proxies={"http": None, "https": None})
-        return f"OK status={r.status_code} proxy_env={os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'}"
-    except Exception as e:
-        return f"FAIL {type(e).__name__}: {e} proxy_env={os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'}"
+        results = {}
+        for test_url in [
+            "https://chocolatebarnyc.com/dirt-cake-ii/",
+            "https://example.com",
+            "https://httpbin.org/get",
+        ]:
+            try:
+                r = requests.get(test_url, timeout=8)
+                results[test_url] = f"OK {r.status_code}"
+            except Exception as ex:
+                results[test_url] = f"FAIL {type(ex).__name__}: {str(ex)[:80]}"
+        proxy = os.environ.get('http_proxy') or os.environ.get('HTTP_PROXY') or 'none'
+        return "<br>".join([f"proxy={proxy}"] + [f"{u}: {v}" for u,v in results.items()])
 
 @app.route("/logout")
 def logout():
