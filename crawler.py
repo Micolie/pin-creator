@@ -139,18 +139,30 @@ def crawl_site(base_url, max_articles=15):
     article page (yields at least that one). Returns:
         {"articles": [...], "error": str|None}
     """
+    # Auto-fix missing scheme
+    if base_url and not base_url.startswith(("http://", "https://")):
+        base_url = "https://" + base_url
+
     try:
         resp = requests.get(base_url, headers=HEADERS, timeout=10)
     except Exception as e:
-        return {"articles": [],
-                "error": f"Could not reach the site ({e.__class__.__name__}). "
-                         f"On PythonAnywhere free accounts, the target site must be on the allowed-hosts list."}
+        name = e.__class__.__name__
+        if name == "MissingSchema":
+            msg = "Invalid URL — please include https:// at the start."
+        elif "ProxyError" in name or "proxy" in str(e).lower():
+            msg = ("Could not reach that site. On PythonAnywhere free accounts "
+                   "only allow-listed domains are accessible. "
+                   "Upgrade to the Hacker plan for unrestricted access.")
+        elif "ConnectionError" in name or "Timeout" in name:
+            msg = "Could not connect to the site. Check the URL and try again."
+        else:
+            msg = f"Could not reach the site ({name}). Check the URL and try again."
+        return {"articles": [], "error": msg}
 
     if resp.status_code != 200:
-        hint = ""
-        if resp.status_code in (401, 403):
-            hint = (" This is likely PythonAnywhere's free-tier proxy blocking an "
-                    "external site that isn't on the allowed-hosts list.")
+        hint = (" The site may be blocking automated requests, or on PythonAnywhere "
+                "free tier it may not be on the allowed-hosts list."
+                if resp.status_code in (401, 403) else "")
         return {"articles": [],
                 "error": f"Site returned HTTP {resp.status_code}.{hint}"}
 

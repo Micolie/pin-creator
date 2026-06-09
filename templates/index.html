@@ -351,8 +351,13 @@ let previewSeq       = 0;       // guards against out-of-order async previews
 // â”€â”€ Step 1: Crawl â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function crawlSite() {
-  const url = document.getElementById("siteUrl").value.trim();
+  let url = document.getElementById("siteUrl").value.trim();
   if (!url) return;
+  // Auto-add https:// if missing
+  if (!/^https?:\/\//i.test(url)) {
+    url = "https://" + url;
+    document.getElementById("siteUrl").value = url;
+  }
 
   const btn = document.getElementById("crawlBtn");
   const status = document.getElementById("crawlStatus");
