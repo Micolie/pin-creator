@@ -93,6 +93,16 @@ def callback():
     return redirect("/?error=token_failed")
 
 
+@app.route("/tokentest")
+def tokentest():
+    token = get_token()
+    if not token:
+        return "Not logged in"
+    import requests
+    r = requests.get(f"{BASE_URL}/boards",
+                     headers={"Authorization": f"Bearer {token}"})
+    return f"BASE_URL={BASE_URL}<br>STATUS={r.status_code}<br>RESPONSE={r.text[:300]}"
+
 @app.route("/nettest")
 def nettest():
     import requests, os
