@@ -12,7 +12,8 @@ app.secret_key = os.environ.get("SECRET_KEY", "pincreator-secret-key-2026")
 
 APP_ID     = os.environ.get("PINTEREST_APP_ID", "1515450")
 APP_SECRET = os.environ.get("PINTEREST_APP_SECRET", "39543cc7a9a0ef5e4b00095e54aa1bbec0d18356")
-BASE_URL   = "https://api.pinterest.com/v5"
+SANDBOX    = os.environ.get("PINTEREST_SANDBOX", "true").lower() == "true"
+BASE_URL   = "https://api-sandbox.pinterest.com/v5" if SANDBOX else "https://api.pinterest.com/v5"
 AUTH_URL   = "https://www.pinterest.com/oauth/"
 TOKEN_URL  = "https://api.pinterest.com/v5/oauth/token"
 
