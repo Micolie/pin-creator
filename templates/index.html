@@ -327,14 +327,23 @@ main { max-width: 980px; margin: 40px auto; padding: 0 20px; }
 
   <!-- Step 5: Board + Publish -->
   <div class="card hidden" id="publishCard">
-    <h2>Step 5 â€” Choose Board &amp; Publish</h2>
-    <div class="field">
+    <h2>Step 5 &mdash; Choose Board &amp; Publish</h2>
+    <div class=”field”>
       <label>Board</label>
-      <select id="boardSelect"><option value="">Loading boardsâ€¦</option></select>
+      <div style=”display:flex;gap:10px;align-items:center;”>
+        <select id=”boardSelect” style=”flex:1”><option value=””>Loading boards&hellip;</option></select>
+        <button class=”ghost-btn” onclick=”showCreateBoard()” style=”white-space:nowrap”>+ New Board</button>
+      </div>
+      <div id=”createBoardRow” style=”display:none;margin-top:10px;gap:8px;align-items:center;”>
+        <input type=”text” id=”newBoardName” placeholder=”Board name” style=”flex:1;padding:8px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.9rem;outline:none;”/>
+        <button class=”fetch-btn” style=”padding:8px 16px;font-size:0.9rem;” onclick=”doCreateBoard()”>Create</button>
+        <button class=”ghost-btn” onclick=”hideCreateBoard()”>Cancel</button>
+      </div>
+      <div id=”boardMsg” style=”font-size:0.82rem;margin-top:6px;color:#666;”></div>
     </div>
-    <div class="summary-bar" id="summaryBar"><span id="summaryText"></span></div>
-    <button class="create-btn" id="createBtn" onclick="createPins()">ðŸ“Œ Create Pins</button>
-    <div class="results hidden" id="results"></div>
+    <div class=”summary-bar” id=”summaryBar”><span id=”summaryText”></span></div>
+    <button class=”create-btn” id=”createBtn” onclick=”createPins()”>Create Pins</button>
+    <div class=”results hidden” id=”results”></div>
   </div>
 
   {% endif %}
