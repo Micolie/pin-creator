@@ -15,7 +15,7 @@ APP_SECRET = os.environ.get("PINTEREST_APP_SECRET", "39543cc7a9a0ef5e4b00095e54a
 SANDBOX    = os.environ.get("PINTEREST_SANDBOX", "true").lower() == "true"
 BASE_URL   = "https://api-sandbox.pinterest.com/v5" if SANDBOX else "https://api.pinterest.com/v5"
 AUTH_URL   = "https://www.pinterest.com/oauth/"
-TOKEN_URL  = "https://api.pinterest.com/v5/oauth/token"
+TOKEN_URL  = "https://api-sandbox.pinterest.com/v5/oauth/token" if SANDBOX else "https://api.pinterest.com/v5/oauth/token"
 
 
 def redirect_uri():
