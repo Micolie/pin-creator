@@ -33,6 +33,13 @@ def get_boards(token):
                      headers={"Authorization": f"Bearer {token}"})
     return r.json().get("items", []) if r.status_code == 200 else []
 
+def create_board(token, name):
+    r = requests.post(f"{BASE_URL}/boards",
+                      headers={"Authorization": f"Bearer {token}",
+                               "Content-Type": "application/json"},
+                      json={"name": name, "description": ""})
+    return r
+
 
 def create_pin_base64(token, board_id, image_b64, title, description, link):
     payload = {
@@ -133,6 +140,19 @@ def boards():
     if not token:
         return jsonify({"error": "Not logged in"}), 401
     return jsonify({"boards": get_boards(token)})
+
+@app.route("/create-board", methods=["POST"])
+def create_board_route():
+    token = get_token()
+    if not token:
+        return jsonify({"error": "Not logged in"}), 401
+    name = (request.json or {}).get("name", "").strip()
+    if not name:
+        return jsonify({"error": "Board name required"}), 400
+    r = create_board(token, name)
+    if r.status_code == 201:
+        return jsonify({"success": True, "board": r.json()})
+    return jsonify({"error": r.json().get("message", "Failed to create board")}), 400
 
 
 @app.route("/preview", methods=["POST"])

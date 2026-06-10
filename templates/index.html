@@ -603,6 +603,42 @@ function trunc(s, n) { s = s || ""; return s.length > n ? s.slice(0, n - 1) + "Ã
 function esc(s) {
   return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
+
+function showCreateBoard() {
+  const row = document.getElementById("createBoardRow");
+  row.style.display = "flex";
+  document.getElementById("newBoardName").focus();
+}
+function hideCreateBoard() {
+  document.getElementById("createBoardRow").style.display = "none";
+  document.getElementById("newBoardName").value = "";
+  document.getElementById("boardMsg").textContent = "";
+}
+async function doCreateBoard() {
+  const name = document.getElementById("newBoardName").value.trim();
+  const msg  = document.getElementById("boardMsg");
+  if (!name) { msg.textContent = "Please enter a board name."; return; }
+  msg.textContent = "Creating...";
+  const r = await fetch("/create-board", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  });
+  const data = await r.json();
+  if (data.success) {
+    msg.style.color = "#166534";
+    msg.textContent = "Board created!";
+    hideCreateBoard();
+    await loadBoards();
+    // auto-select the new board
+    const sel = document.getElementById("boardSelect");
+    for (let opt of sel.options) {
+      if (opt.text === name) { sel.value = opt.value; break; }
+    }
+  } else {
+    msg.style.color = "#991b1b";
+    msg.textContent = data.error || "Failed to create board.";
+  }
+}
 </script>
 </body>
 </html>
