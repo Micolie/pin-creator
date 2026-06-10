@@ -3,8 +3,11 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-HEADERS  = {"User-Agent": "Mozilla/5.0 (compatible; PinCreator/1.0)"}
-NO_PROXY = {"http": None, "https": None}  # bypass PythonAnywhere proxy for crawling
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+}
 
 SKIP_LINK_PATTERNS = [
     "/tag/", "/tags/", "/category/", "/categories/",

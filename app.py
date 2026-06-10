@@ -89,13 +89,14 @@ def callback():
 def nettest():
     import requests, os
     results = {}
+    hdrs = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
     for test_url in [
         "https://chocolatebarnyc.com/dirt-cake-ii/",
         "https://example.com",
         "https://httpbin.org/get",
     ]:
         try:
-            r = requests.get(test_url, timeout=8)
+            r = requests.get(test_url, headers=hdrs, timeout=8)
             results[test_url] = f"OK {r.status_code}"
         except Exception as ex:
             results[test_url] = f"FAIL {type(ex).__name__}: {str(ex)[:80]}"
